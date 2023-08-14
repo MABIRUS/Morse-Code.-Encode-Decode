@@ -7,6 +7,65 @@ namespace Morse_Code_Encode_Decode
 {
     internal class Program
     {
+        public class MorseTree
+        {
+            public Node Root { get; set; }
+            public MorseTree() 
+            {
+                Root = new Node();
+                foreach (var keyValuePair in morseDictionary)
+                {
+                    Add(Root, keyValuePair);
+                }
+            }
+
+            public class Node
+            {
+                public char Character { get; set; }
+                public string Code { get; set; }
+                public Node Dot { get; set; }
+                public Node Dash { get; set; }
+
+                public Node()
+                {
+                    Character = '\0';
+                    Code = string.Empty;
+                    Dot = null;
+                    Dash = null;
+                }
+            }
+
+            private void Add(Node node, KeyValuePair<char, string> pair)
+            {
+                for(int i = 0; i < pair.Value.Length; i++)
+                {
+                    if (pair.Value[i] == '.')
+                    {
+                        if(node.Dot == null) node.Dot = new Node();
+                        node = node.Dot; 
+                    }
+                    else
+                    {
+                        if (node.Dash == null) node.Dash = new Node();
+                        node = node.Dash;
+                    }
+                }
+                node.Character = pair.Key;
+                node.Code = pair.Value;
+            }
+
+            public char Find(string code)
+            {
+                Node node = this.Root;
+                for(int i = 0; i < code.Length; i++)
+                {
+                    if (code[i] == '.') node = node.Dot;
+                    else node = node.Dash;
+                }
+                return node.Character;
+            }
+        }
+
         private static readonly Dictionary<char, string> morseDictionary = new Dictionary<char, string>()
         {
             {'A', ".-"}, {'B', "-..."}, {'C', "-.-."}, {'D', "-.."}, {'E', "."},
@@ -35,7 +94,7 @@ namespace Morse_Code_Encode_Decode
             return morseCode.ToString();
         }
 
-        public static string Decode(string morseCode)
+        public static string Decode(MorseTree morseTree ,string morseCode)
         {
             StringBuilder message = new StringBuilder();
             string[] separator = { "   " };
@@ -45,7 +104,7 @@ namespace Morse_Code_Encode_Decode
                 string[] letters = word.Split(' ');
                 foreach (string letter in letters)
                 {
-                    char decodedChar = morseDictionary.FirstOrDefault(x => x.Value == letter).Key;
+                    char decodedChar = morseTree.Find(letter);
                     if (decodedChar != '\0')
                     {
                         message.Append(decodedChar);
@@ -63,7 +122,9 @@ namespace Morse_Code_Encode_Decode
             string word = Console.ReadLine().Trim();
             switch (word[0])
             {
-                case '-': case '.': Console.WriteLine(Decode(word)); break;
+                case '-': case '.':
+                    MorseTree morseTree = new MorseTree();
+                    Console.WriteLine(Decode(morseTree, word)); break;
                 default: Console.WriteLine(Encode(word)); break;
             }
             Console.WriteLine("Press any key to exit.");
