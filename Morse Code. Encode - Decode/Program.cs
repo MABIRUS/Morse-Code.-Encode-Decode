@@ -10,13 +10,10 @@ namespace Morse_Code_Encode_Decode
         public class MorseTree
         {
             private Node Root { get; set; }
-            public MorseTree() 
+            public MorseTree()
             {
                 Root = new Node();
-                foreach (var keyValuePair in morseDictionary)
-                {
-                    Add(Root, keyValuePair);
-                }
+                foreach (var keyValuePair in morseDictionary) Add(Root, keyValuePair);
             }
 
             public class Node
@@ -35,12 +32,12 @@ namespace Morse_Code_Encode_Decode
 
             private void Add(Node node, KeyValuePair<char, string> pair)
             {
-                for(int i = 0; i < pair.Value.Length; i++)
+                for (int i = 0; i < pair.Value.Length; i++)
                 {
                     if (pair.Value[i] == '.')
                     {
-                        if(node.Dot == null) node.Dot = new Node();
-                        node = node.Dot; 
+                        if (node.Dot == null) node.Dot = new Node();
+                        node = node.Dot;
                     }
                     else
                     {
@@ -54,10 +51,11 @@ namespace Morse_Code_Encode_Decode
             public char Find(string code)
             {
                 Node node = Root;
-                for(int i = 0; i < code.Length; i++)
+                for (int i = 0; i < code.Length; i++)
                 {
                     if (code[i] == '.') node = node.Dot;
                     else node = node.Dash;
+                    if (node == null) return '\0';
                 }
                 return node.Character;
             }
@@ -76,7 +74,7 @@ namespace Morse_Code_Encode_Decode
             {',', "--..--"}, {'.', ".-.-.-"}, {'?', "..--.."}, {'!', "-.-.--"}, {'\'', ".----."},
             {'"', ".-..-."}, {'(', "-.--."}, {')', "-.--.-"}, {'&', ".-..."}, {':', "---..."},
             {';', "-.-.-."}, {'=', "-...-"}, {'+', ".-.-."}, {'-', "-....-"}, {'_', "..--.-"},
-            {'/', "-..-."}, {'\\', "-..-."}, {'@', ".--.-."}
+            {'/', "-..-."}, {'@', ".--.-."}
         };
 
         public static string Encode(string message)
@@ -91,7 +89,7 @@ namespace Morse_Code_Encode_Decode
             return morseCode.ToString();
         }
 
-        public static string Decode(MorseTree morseTree ,string morseCode)
+        public static string Decode(MorseTree morseTree, string morseCode)
         {
             StringBuilder message = new StringBuilder();
             string[] separator = { "   " };
@@ -102,10 +100,8 @@ namespace Morse_Code_Encode_Decode
                 foreach (string letter in letters)
                 {
                     char decodedChar = morseTree.Find(letter);
-                    if (decodedChar != '\0')
-                    {
-                        message.Append(decodedChar);
-                    }
+                    if (decodedChar != '\0') message.Append(decodedChar);
+                    else return "Invalid Morse code sequence.";
                 }
                 message.Append(" ");
             }
@@ -114,18 +110,24 @@ namespace Morse_Code_Encode_Decode
 
         static void Main(string[] args)
         {
+            MorseTree morseTree = new MorseTree();
             Console.WriteLine("If you want to translate a message consisting of Morse code," +
                 "\nthen put 1 space between letters and 3 or more spaces between words.");
-            string word = Console.ReadLine().Trim();
-            switch (word[0])
+            while (true)
             {
-                case '-': case '.':
-                    MorseTree morseTree = new MorseTree();
-                    Console.WriteLine(Decode(morseTree, word)); break;
-                default: Console.WriteLine(Encode(word)); break;
+                string message = Console.ReadLine().Trim();
+                if (message.Length == 0) continue;
+                char firstCharacter = char.ToUpper(message[0]);
+                switch (firstCharacter)
+                {
+                    case '-': case '.':
+                        Console.WriteLine(Decode(morseTree, message)); break;
+                    default:
+                        if (message.All(x => morseDictionary.ContainsKey(char.ToUpper(x)) || x == ' ')) Console.WriteLine(Encode(message));
+                        else Console.WriteLine("Invalid input format.");
+                        break;
+                }
             }
-            Console.WriteLine("Press any key to exit.");
-            Console.ReadKey();
         }
     }
 }
