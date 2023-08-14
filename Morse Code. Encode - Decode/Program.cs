@@ -9,7 +9,7 @@ namespace Morse_Code_Encode_Decode
     {
         public class MorseTree
         {
-            public Node Root { get; set; }
+            private Node Root { get; set; }
             public MorseTree() 
             {
                 Root = new Node();
@@ -22,14 +22,12 @@ namespace Morse_Code_Encode_Decode
             public class Node
             {
                 public char Character { get; set; }
-                public string Code { get; set; }
                 public Node Dot { get; set; }
                 public Node Dash { get; set; }
 
                 public Node()
                 {
                     Character = '\0';
-                    Code = string.Empty;
                     Dot = null;
                     Dash = null;
                 }
@@ -51,12 +49,11 @@ namespace Morse_Code_Encode_Decode
                     }
                 }
                 node.Character = pair.Key;
-                node.Code = pair.Value;
             }
 
             public char Find(string code)
             {
-                Node node = this.Root;
+                Node node = Root;
                 for(int i = 0; i < code.Length; i++)
                 {
                     if (code[i] == '.') node = node.Dot;
